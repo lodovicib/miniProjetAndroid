@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tagslist">
+        <item>Selectionner le tag correspondant</item>
+        <item>Recyclage</item>
+        <item>Dégradation</item>
+        <item>Fuite d\'eau</item>
+    </string-array>
+</resources>

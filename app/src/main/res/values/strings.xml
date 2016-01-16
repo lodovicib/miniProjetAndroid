@@ -7,4 +7,6 @@
     <string name="action_settings">Settings</string>
 
     <string name="provider_enabled">The provider %s is now enabled</string>
+
+    <string name="tags">Selectionner le tag correspondant</string>
 </resources>

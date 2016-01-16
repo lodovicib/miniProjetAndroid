@@ -23,27 +23,5 @@
                 android:layout_height="match_parent"
                 class="com.google.android.gms.maps.SupportMapFragment"/>
         </LinearLayout>
-<!--
-<include layout="@layout/activity_maps" />
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView" >
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView2"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-    </ScrollView>
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/map"
-        tools:context=".UPSMapActivity"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.google.android.gms.maps.SupportMapFragment" />
--->
 
 </RelativeLayout>

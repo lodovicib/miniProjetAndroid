@@ -2,9 +2,6 @@ package com.m2dl.miniprojetpointinteret;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationManager;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,15 +16,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.m2dl.miniprojetpointinteret.Fragments.AddFragment;
+import com.m2dl.miniprojetpointinteret.Fragments.MapsFragment;
+import com.m2dl.miniprojetpointinteret.Fragments.SettingsFragment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +32,9 @@ import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-
+    Fragment fragmentMap;
+    Fragment fragment = new MapsFragment();
+    FragmentTransaction transaction;
     private android.support.v4.app.FragmentManager fragmentManager;
 
     @Override
@@ -51,14 +45,14 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -72,7 +66,7 @@ public class MainActivity extends AppCompatActivity
        // ImageView v = (ImageView) findViewById(R.id.imageView2);
        // v.setImageBitmap(getGoogleMapThumbnail(43.560573, 1.468520));
 
-        Fragment fragmentMap = new MapsFragment();
+        fragmentMap = new MapsFragment();
         Bundle bundle = new Bundle();
         fragmentMap.setArguments(bundle);
         fragmentManager = getSupportFragmentManager();
@@ -141,34 +135,26 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    Fragment fragment = new MapsFragment();
-    FragmentTransaction transaction;
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        System.out.println(id);
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_map) {
+            fragment = new MapsFragment();
+        } else if (id == R.id.nav_addPI) {
             fragment = new AddFragment();
         } else if (id == R.id.nav_slideshow) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_settings) {
+            fragment = new SettingsFragment();
         }
         fragmentManager = getSupportFragmentManager();
         transaction = fragmentManager.beginTransaction();
-  //      if (position == 0)
+  //      if (id != R.id.nav_map)
  //           transaction.replace(R.id.content_frame, fragmentMap);
 //        else
-            transaction.replace(R.id.content_frame, fragment);
+        transaction.replace(R.id.content_frame, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
