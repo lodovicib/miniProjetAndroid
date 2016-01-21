@@ -33,12 +33,14 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
 
     private Bundle saved;
     private static GoogleMap mMap;
-    private static Double latitude = 43.560573, longitude = 1.468520;
+    private static Double latitude = 43.560573;
+    private static Double longitude = 1.468520;
     private static View view;
-    private LocationListener loc;
+    private LocationListener locationListener;
     LocationManager locationManager;
     private Criteria critere;
-    private String best, provider;
+    private String best;
+    private String provider;
 
     public MapsFragment() {
         super();
@@ -46,13 +48,11 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (container == null) {
             return null;
         }
         view = inflater.inflate(R.layout.activity_maps, container, false);
-
         return view;
     }
 
@@ -72,15 +72,13 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     private void setUpMap(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("My Home").snippet("Home Address"));
-        // For zooming automatically to the Dropped PIN Location
-
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15.0f));
         mMap.setOnMyLocationButtonClickListener(this);
-        init_location();
+        initLocation();
         enableMyLocation();
     }
 
-    public void init_location() {
+    private void initLocation() {
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         critere = new Criteria();
         critere.setAccuracy(Criteria.ACCURACY_FINE);
@@ -90,31 +88,25 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
                 mMap == null) {
             return;
         }
-        loc = new LocationHandler(this);
+        locationListener = new LocationHandler(this);
         if (best.equals("gps"))
             provider = LocationManager.GPS_PROVIDER;
         else
             provider = LocationManager.NETWORK_PROVIDER;
+
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            abonnementGPS();
+        }
     }
 
-    public void abonnementGPS() {
-        if (ActivityCompat.checkSelfPermission(MapsFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(MapsFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                mMap == null) {
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(MapsFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             return;
+        } else if (mMap != null) {
+            mMap.setMyLocationEnabled(true);
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, loc);
     }
-
-    public void desabonnementGPS() {
-        if (ActivityCompat.checkSelfPermission(MapsFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(MapsFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                mMap == null) {
-            return;
-        }
-        locationManager.removeUpdates(loc);
-    }
- //   public static Fragment mapFragment;
 
     @Override
     public void onPause() {
@@ -126,36 +118,41 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     @Override
     public void onResume() {
         super.onResume();
-        locationManager = (LocationManager) MapsFragment.this.getActivity().getSystemService(Context.LOCATION_SERVICE);
-        //Si le GPS est disponible, on s'y abonne
-        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (locationManager != null && locationListener != null
+                && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             abonnementGPS();
         }
         Log.i("onResume", "onResumeMap");
     }
 
+    private void desabonnementGPS() {
+        if (ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                mMap == null) {
+            return;
+        }
+        locationManager.removeUpdates(locationListener);
+    }
+
+    private void abonnementGPS() {
+        if (ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                mMap == null) {
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        //if (mMap != null) {
-            mMap = null;
-        //}
+        mMap = null;
     }
 
     @Override
     public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
         setRetainInstance(true);
-    }
-
-    private void enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(MapsFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
-        } else if (mMap != null) {
-            // Access to the location has been granted to the app.
-            mMap.setMyLocationEnabled(true);
-        }
     }
 
     @Override
@@ -204,7 +201,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
 
         @Override
         public void onProviderEnabled(String s) {
-
             Log.d(TAG, "Dispositif activé : "+s);
             String msg = String.format("The provider "+ s +" is now enabled");
             Toast.makeText(frag.getActivity(), msg, Toast.LENGTH_SHORT).show();
@@ -212,7 +208,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
 
         @Override
         public void onProviderDisabled(String s) {
-
             Log.d(TAG, "Dispositif désactivé : "+s);
             String msg = String.format("The provider "+ s +" is now disabled");
             Toast.makeText(frag.getActivity(), msg, Toast.LENGTH_SHORT).show();

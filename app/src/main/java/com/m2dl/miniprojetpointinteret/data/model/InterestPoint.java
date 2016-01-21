@@ -9,7 +9,7 @@ public class InterestPoint {
 
     private String id;
     private GeoPoint geoPoint;
-    private byte[] photo;
+    private String photoUrl;
     private User user;
     private List<Tag> tags;
 
