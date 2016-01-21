@@ -17,10 +17,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.firebase.client.Firebase;
 import com.m2dl.miniprojetpointinteret.Fragments.AddFragment;
 import com.m2dl.miniprojetpointinteret.Fragments.MapsFragment;
 import com.m2dl.miniprojetpointinteret.Fragments.SettingsFragment;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import cz.msebera.android.httpclient.client.ClientProtocolException;
+import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.methods.HttpGet;
+import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -33,10 +40,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Firebase.setAndroidContext(this);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -60,6 +76,32 @@ public class MainActivity extends AppCompatActivity
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
+    public static Bitmap getGoogleMapThumbnail(double lati, double longi){
+        String URL = "http://maps.google.com/maps/api/staticmap?center=" +lati + "," + longi + "&zoom=15&size=1000x1000&sensor=true";
+        Bitmap bmp = null;
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpGet request = new HttpGet(URL);
+
+        InputStream in = null;
+        try {
+            in = httpclient.execute(request).getEntity().getContent();
+            bmp = BitmapFactory.decodeStream(in);
+            in.close();
+        } catch (IllegalStateException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println(bmp);
+        return bmp;
+    }
+
 
     @Override
     public void onBackPressed() {
