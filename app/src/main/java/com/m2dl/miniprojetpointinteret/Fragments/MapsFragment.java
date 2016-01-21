@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -16,12 +18,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.m2dl.miniprojetpointinteret.MyLocation;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.m2dl.miniprojetpointinteret.R;
 
 /**
@@ -33,14 +35,13 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     private static GoogleMap mMap;
     private static Double latitude = 43.560573, longitude = 1.468520;
     private static View view;
-    private MyLocation loc;
+    private LocationListener loc;
     LocationManager locationManager;
     private Criteria critere;
     private String best, provider;
 
     public MapsFragment() {
         super();
-        // Just to be an empty Bundle. You can use this later with getArguments().set...
         setArguments(new Bundle());
     }
 
@@ -59,16 +60,20 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     public void onViewCreated(View view, Bundle savedInstanceState) {
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+            ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    setUpMap(googleMap);
+                }
+            });
         }
-        if (mMap != null)
-            setUpMap();
     }
 
-    private void setUpMap() {
-        // mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("My Home").snippet("Home Address"));
+    private void setUpMap(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("My Home").snippet("Home Address"));
         // For zooming automatically to the Dropped PIN Location
+
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15.0f));
         mMap.setOnMyLocationButtonClickListener(this);
         init_location();
@@ -85,7 +90,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
                 mMap == null) {
             return;
         }
-        loc = new MyLocation(locationManager.getLastKnownLocation(best), this);
+        loc = new LocationHandler(this);
         if (best.equals("gps"))
             provider = LocationManager.GPS_PROVIDER;
         else
@@ -98,7 +103,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
                 mMap == null) {
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, loc.getLocationListener());
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, loc);
     }
 
     public void desabonnementGPS() {
@@ -107,7 +112,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
                 mMap == null) {
             return;
         }
-        locationManager.removeUpdates(loc.getLocationListener());
+        locationManager.removeUpdates(loc);
     }
  //   public static Fragment mapFragment;
 
