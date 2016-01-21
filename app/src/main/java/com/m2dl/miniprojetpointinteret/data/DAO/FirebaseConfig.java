@@ -1,5 +1,6 @@
 package com.m2dl.miniprojetpointinteret.data.DAO;
 
+
 import com.firebase.client.Firebase;
 
 /**
