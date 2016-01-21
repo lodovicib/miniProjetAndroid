@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.m2dl.miniprojetpointinteret.Fragments.AddFragment;
 import com.m2dl.miniprojetpointinteret.Fragments.MapsFragment;
 
 
@@ -16,12 +17,10 @@ import com.m2dl.miniprojetpointinteret.Fragments.MapsFragment;
 public class MyLocation {
     LocationListener loc;
     Location location;
-    MapsFragment frag;
+    AddFragment frag;
     public static final String TAG = "LocationOverlay";
-/*    public MyLocationOverlay(Context context, MapView carte) {
-    }*/
 
-    public MyLocation(Location _location, MapsFragment g) {
+    public MyLocation(Location _location, AddFragment g) {
         frag = g;
         location = _location;
         loc = new LocationListener() {

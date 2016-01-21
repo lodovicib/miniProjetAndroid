@@ -126,6 +126,7 @@ public class AddFragment extends Fragment implements View.OnClickListener {
                 if (imageView == null)
                     errorText += "- Mettre une image du point d\'intéret";
                 //errorText = "lat:"+ loc.getLatitude() +" - long :"+loc.getLongitude();
+                // TODO n'ajouter que si on est à la fac !
                 if (!errorText.equals(""))
                     Toast.makeText(AddFragment.this.getActivity(), "Veuillez remplir les champs suivants :\n"+errorText, Toast.LENGTH_SHORT)
                             .show();
@@ -143,7 +144,6 @@ public class AddFragment extends Fragment implements View.OnClickListener {
         bundle.putDouble("longitude", loc.getLongitude());
         bundle.putString("tag", s.getSelectedItem().toString());
         fragmentMap.setArguments(bundle);
-        //fragmentManager = getSupportFragmentManager();
 
         android.support.v4.app.FragmentManager fragmentManager =  AddFragment.this.getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -151,13 +151,6 @@ public class AddFragment extends Fragment implements View.OnClickListener {
         transaction.replace(R.id.content_frame, fragmentMap);
         transaction.addToBackStack(null);
         transaction.commit();
-
-        //Intent intent = new Intent();
-        //intent.setClass(getActivity(), MapsFragment.class);
-        //on passe à l'actvité l'id du joeur sélectionné
-       // MarkerOptions marker = new MarkerOptions().position(new LatLng(loc.getLatitude(), loc.getLongitude())).title(s.getSelectedItem().toString()).snippet("Ajouté par : ");
-        //intent.putExtra("newMarker", marker);
-        //startActivity(intent);
     }
 
     @Override
