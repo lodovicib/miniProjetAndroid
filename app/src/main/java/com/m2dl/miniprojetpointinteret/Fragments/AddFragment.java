@@ -1,10 +1,12 @@
-package com.m2dl.miniprojetpointinteret;
+package com.m2dl.miniprojetpointinteret.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.m2dl.miniprojetpointinteret.R;
 
 /**
  * Created by lgaleron on 11/01/2016.
