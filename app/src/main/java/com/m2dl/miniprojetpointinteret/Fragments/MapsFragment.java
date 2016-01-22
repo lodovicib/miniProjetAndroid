@@ -21,13 +21,18 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.m2dl.miniprojetpointinteret.model.InterestPoint;
+import com.m2dl.miniprojetpointinteret.model.InterestPointListener;
+import com.m2dl.miniprojetpointinteret.model.InterestPointService;
 import com.m2dl.miniprojetpointinteret.utils.BasicListPoints;
 import com.m2dl.miniprojetpointinteret.R;
+
+import java.util.List;
 
 /**
  * Created by lgaleron on 10/01/2016.
  */
-public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButtonClickListener{ //,  View.OnClickListener
+public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButtonClickListener, InterestPointListener {
 
     private Bundle saved;
     private static GoogleMap mMap;
@@ -37,9 +42,15 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     private MarkerOptions newMarker;
     private BasicListPoints listPoints;
     private String MyPREFERENCES = "parametres";
+    private InterestPointService interestPointService;
 
     public MapsFragment() {
         super();
+    }
+
+    public void setInterestPointService(InterestPointService service) {
+        interestPointService = service;
+        interestPointService.addListener(this);
     }
 
     @Override
@@ -50,12 +61,15 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         }
         view = inflater.inflate(R.layout.activity_maps, container, false);
 
+        // TODO delete this code: new point will be added with the InterestPointListener
         saved = getArguments();
         SharedPreferences sharedpreferences = MapsFragment.this.getActivity().getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         if (saved != null && saved.containsKey("latitude"))
             newMarker = new MarkerOptions().position(new LatLng(saved.getDouble("latitude"), saved.getDouble("longitude")))
                     .title(saved.getString("tag"))
                     .snippet("Ajouté par : "+ sharedpreferences.getString("login", null));
+        // End
+
         listPoints = new BasicListPoints();
         final Spinner spinner = (Spinner) view.findViewById(R.id.spinnerFiltre);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -132,9 +146,18 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         return false;
     }
 
-    /*public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.spinnerFiltre:
+    @Override
+    public void onPointsCreated(List<InterestPoint> interestPoints) {
+        for (InterestPoint point : interestPoints) {
+            String tags = "";
+            for (String tag : point.getTags()) {
+                tags += tag + " ";
+            }
+            MarkerOptions newMarker = new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))
+                    .title(tags)
+                    .snippet("Ajouté par : " + point.getUserName());
+            mMap.addMarker(newMarker);
         }
-    }*/
+        // TODO zoom if there only one point created.
+    }
 }

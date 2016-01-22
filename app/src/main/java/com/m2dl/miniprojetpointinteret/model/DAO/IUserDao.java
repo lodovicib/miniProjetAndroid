@@ -1,13 +1,11 @@
-package com.m2dl.miniprojetpointinteret.data.DAO;
+package com.m2dl.miniprojetpointinteret.model.DAO;
 
-import com.m2dl.miniprojetpointinteret.data.model.User;
+import com.m2dl.miniprojetpointinteret.model.User;
 
 /**
  * Created by Romain on 21/01/2016.
  */
 public interface IUserDao {
-
-    User findById(String id);
 
     boolean store(User user);
 

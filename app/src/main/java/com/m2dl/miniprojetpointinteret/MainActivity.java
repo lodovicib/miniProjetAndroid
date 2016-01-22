@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -25,10 +24,12 @@ import com.firebase.client.Firebase;
 import com.m2dl.miniprojetpointinteret.Fragments.AddFragment;
 import com.m2dl.miniprojetpointinteret.Fragments.MapsFragment;
 import com.m2dl.miniprojetpointinteret.Fragments.SettingsFragment;
+import com.m2dl.miniprojetpointinteret.model.BindService;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private BindService bindService;
     Fragment fragment = new MapsFragment();
     FragmentTransaction transaction;
     private android.support.v4.app.FragmentManager fragmentManager;
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         Firebase.setAndroidContext(this);
+        bindService = new BindService();
+        ((MapsFragment) fragment).setInterestPointService(bindService.getInterestPointService());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -61,8 +64,13 @@ public class MainActivity extends AppCompatActivity
             alertBoxPseudo();
         else
             pref.setTextHeader();
-        fragment = new MapsFragment();
+        createMapsFragment();
         switchFragment();
+    }
+
+    private void createMapsFragment() {
+        fragment = new MapsFragment();
+        ((MapsFragment) fragment).setInterestPointService(bindService.getInterestPointService());
     }
 
     public void alertBoxPseudo() {
@@ -143,7 +151,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_map) {
-            fragment = new MapsFragment();
+            createMapsFragment();
         } else if (id == R.id.nav_addPI) {
             fragment = new AddFragment();
         } else if (id == R.id.nav_slideshow) {
@@ -153,7 +161,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_quit) {
             System.exit(RESULT_OK);
         } else {
-            fragment = new MapsFragment();
+            createMapsFragment();
         }
         switchFragment();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

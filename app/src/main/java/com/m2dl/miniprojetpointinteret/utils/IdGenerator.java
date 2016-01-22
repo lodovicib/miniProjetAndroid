@@ -7,11 +7,11 @@ import java.util.UUID;
  */
 public class IdGenerator {
 
-    public static String getIdAsString() {
+    public String getIdAsString() {
         return UUID.randomUUID().toString();
     }
 
-    public static UUID getUUID() {
+    public UUID getUUID() {
         return UUID.randomUUID();
     }
 }

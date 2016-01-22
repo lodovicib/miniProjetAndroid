@@ -1,6 +1,4 @@
-package com.m2dl.miniprojetpointinteret.data.model;
-
-import com.m2dl.miniprojetpointinteret.utils.IdGenerator;
+package com.m2dl.miniprojetpointinteret.model;
 
 /**
  * Created by Romain on 15/01/2016.
@@ -9,14 +7,11 @@ public class User {
 
     private String id;
     private String name;
-    private String mail;
 
     public User() {/* For firebase */}
 
-    public User(String name, String mail) {
-        id = IdGenerator.getIdAsString();
+    public User(String name) {
         this.name = name;
-        this.mail = mail;
     }
 
     public String getId() {
@@ -27,11 +22,11 @@ public class User {
         return name;
     }
 
-    public String getMail() {
-        return mail;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    void setId(String id) {
+        this.id = id;
     }
 }
