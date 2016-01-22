@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
 import com.m2dl.miniprojetpointinteret.Fragments.AddFragment;
 import com.m2dl.miniprojetpointinteret.Fragments.MapsFragment;
 import com.m2dl.miniprojetpointinteret.Fragments.SettingsFragment;
@@ -28,7 +29,6 @@ import com.m2dl.miniprojetpointinteret.Fragments.SettingsFragment;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    Fragment fragmentMap;
     Fragment fragment = new MapsFragment();
     FragmentTransaction transaction;
     private android.support.v4.app.FragmentManager fragmentManager;
@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Firebase.setAndroidContext(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

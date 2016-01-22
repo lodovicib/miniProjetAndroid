@@ -2,13 +2,14 @@ package com.m2dl.miniprojetpointinteret.Fragments;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,9 +27,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.m2dl.miniprojetpointinteret.MyLocation;
 import com.m2dl.miniprojetpointinteret.R;
 
 import java.io.File;
@@ -36,18 +34,20 @@ import java.io.File;
 /**
  * Created by lgaleron on 11/01/2016.
  */
-public class AddFragment extends Fragment implements View.OnClickListener {
+public class AddFragment extends Fragment implements View.OnClickListener, LocationListener {
 
     private View view;
-    Spinner s;
-    private MyLocation loc;
-    LocationManager locationManager;
+    private Spinner spinner;
+    private Location location;
+    private LocationManager locationManager;
     private Criteria critere;
-    private String best, provider;
+
+    private Uri imageUri;
+    private ImageView imageView;
+    private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
 
     public AddFragment() {
         super();
-        // Just to be an empty Bundle. You can use this later with getArguments().set...
         setArguments(new Bundle());
     }
 
@@ -63,15 +63,23 @@ public class AddFragment extends Fragment implements View.OnClickListener {
         Button bAdd = (Button) view.findViewById(R.id.buttonAddPoint);
         b.setOnClickListener(this);
         bAdd.setOnClickListener(this);
-        init_location();
+        initLocation();
         return view;
     }
 
-    private Uri imageUri;
-    private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
-    ImageView imageView;
+    public void initLocation() {
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        critere = new Criteria();
+        critere.setAccuracy(Criteria.ACCURACY_FINE);
+        if (ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            abonnementGPS();
+        }
+    }
 
-    //On prend une photo
     public void takePhoto(View view) {
         //Création d'un intent
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
@@ -86,7 +94,6 @@ public class AddFragment extends Fragment implements View.OnClickListener {
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
 
-    //On a reçu le résultat d'une activité
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -119,13 +126,12 @@ public class AddFragment extends Fragment implements View.OnClickListener {
                 takePhoto(v);
                 break;
             case R.id.buttonAddPoint:
-                s = (Spinner) AddFragment.this.getActivity().findViewById(R.id.spinnerTag);
+                spinner = (Spinner) AddFragment.this.getActivity().findViewById(R.id.spinnerTag);
                 String errorText = "";
-                if (s == null || s.getSelectedItemPosition() == 0)
+                if (spinner == null || spinner.getSelectedItemPosition() == 0)
                     errorText += "- Sélectionner un tag\n";
                 if (imageView == null)
                     errorText += "- Mettre une image du point d\'intéret";
-                //errorText = "lat:"+ loc.getLatitude() +" - long :"+loc.getLongitude();
                 // TODO n'ajouter que si on est à la fac !
                 if (!errorText.equals(""))
                     Toast.makeText(AddFragment.this.getActivity(), "Veuillez remplir les champs suivants :\n"+errorText, Toast.LENGTH_SHORT)
@@ -137,12 +143,13 @@ public class AddFragment extends Fragment implements View.OnClickListener {
     }
 
     public void addPoint() {
-
+        // TODO use interestPoint service to store the new point (createPoint())
+        // MapsFragment will know the change with firebase ValueChangeEvent
         Fragment fragmentMap = new MapsFragment();
         Bundle bundle = new Bundle();
-        bundle.putDouble("latitude", loc.getLatitude());
-        bundle.putDouble("longitude", loc.getLongitude());
-        bundle.putString("tag", s.getSelectedItem().toString());
+        bundle.putDouble("latitude", location.getLatitude());
+        bundle.putDouble("longitude", location.getLongitude());
+        bundle.putString("tag", spinner.getSelectedItem().toString());
         fragmentMap.setArguments(bundle);
 
         android.support.v4.app.FragmentManager fragmentManager =  AddFragment.this.getActivity().getSupportFragmentManager();
@@ -163,9 +170,7 @@ public class AddFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        locationManager = (LocationManager) AddFragment.this.getActivity().getSystemService(Context.LOCATION_SERVICE);
-        //Si le GPS est disponible, on s'y abonne
-        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             abonnementGPS();
         }
         Log.i("onResume", "onResumeMap");
@@ -176,7 +181,7 @@ public class AddFragment extends Fragment implements View.OnClickListener {
                 ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, loc.getLocationListener());
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, this);
     }
 
     public void desabonnementGPS() {
@@ -184,22 +189,26 @@ public class AddFragment extends Fragment implements View.OnClickListener {
                 ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.removeUpdates(loc.getLocationListener());
+        locationManager.removeUpdates(this);
     }
 
-    public void init_location() {
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        critere = new Criteria();
-        critere.setAccuracy(Criteria.ACCURACY_FINE);
-        best = locationManager.getBestProvider(critere, true);
-        if (ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        loc = new MyLocation(locationManager.getLastKnownLocation(best), this);
-        if (best.equals("gps"))
-            provider = LocationManager.GPS_PROVIDER;
-        else
-            provider = LocationManager.NETWORK_PROVIDER;
+    @Override
+    public void onLocationChanged(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 }

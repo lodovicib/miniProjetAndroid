@@ -1,4 +1,4 @@
-package com.m2dl.miniprojetpointinteret;
+package com.m2dl.miniprojetpointinteret.utils;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -6,22 +6,23 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lgaleron on 21/01/2016.
  */
 public class BasicListPoints {
 
-    private ArrayList<MarkerOptions> listPoints;
+    private List<MarkerOptions> listPoints;
 
     public BasicListPoints() {
-        listPoints = new ArrayList<MarkerOptions>();
+        listPoints = new ArrayList<>();
         init();
     }
 
     private void init() {
        // Verre
-        ArrayList<LatLng> listVerre = new ArrayList<LatLng>();
+        ArrayList<LatLng> listVerre = new ArrayList<>(7);
         listVerre.add(new LatLng(43.55891,1.47303));listVerre.add(new LatLng(43.55999,1.47194));
         listVerre.add(new LatLng(43.55995,1.47195));listVerre.add(new LatLng(43.56439,1.47053));
         listVerre.add(new LatLng(43.56355,1.47579));listVerre.add(new LatLng(43.55509,1.46816));
@@ -33,7 +34,7 @@ public class BasicListPoints {
         addListPoints(listVerre, "Recyclage : verre", BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
         //Textile
-        ArrayList<LatLng> listTextille = new ArrayList<LatLng>();
+        ArrayList<LatLng> listTextille = new ArrayList<>(2);
         listTextille.add(new LatLng(43.55505,1.46811));
         listTextille.add(new LatLng(43.56305, 1.45935));
 
@@ -126,16 +127,8 @@ public class BasicListPoints {
         }
     }
 
-    public ArrayList<MarkerOptions> getListPoints() {
+    public List<MarkerOptions> getListPoints() {
         return listPoints;
     }
 
-   /* public ArrayList<MarkerOptions> getListServiceByName(String name) {
-        ArrayList<MarkerOptions> listServiceByName = new ArrayList<MarkerOptions>();
-        for (MarkerOptions s : listService) {
-           // if (s.getNom().equals(name))
-             //   listServiceByName.add(s);
-        }
-        return listServiceByName;
-    }*/
 }
