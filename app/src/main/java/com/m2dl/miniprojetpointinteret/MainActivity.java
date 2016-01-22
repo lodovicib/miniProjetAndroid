@@ -32,8 +32,7 @@ public class MainActivity extends AppCompatActivity
     Fragment fragment = new MapsFragment();
     FragmentTransaction transaction;
     private android.support.v4.app.FragmentManager fragmentManager;
-    SharedPreferences sharedpreferences;
-    private String MyPREFERENCES = "parametres";
+    Preferences pref;
     private String login;
     TextView textLogin;
 
@@ -56,14 +55,12 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        View headView = navigationView.getHeaderView(0);
-        textLogin = ((TextView) headView.findViewById(R.id.login));
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        login = sharedpreferences.getString("login", null);
+        pref = new Preferences(this);
+        login = pref.getLogin();
         if (login == null)
             alertBoxPseudo();
         else
-            textLogin.setText(login);
+            pref.setTextHeader();
         fragment = new MapsFragment();
         switchFragment();
     }
@@ -100,10 +97,7 @@ public class MainActivity extends AppCompatActivity
                 if (!errorTxt.equals(""))
                     Toast.makeText(MainActivity.this, errorTxt, Toast.LENGTH_SHORT).show();
                 else {
-                    SharedPreferences.Editor editor = sharedpreferences.edit();
-                    editor.putString("login", newLogin);
-                    editor.apply();
-                    textLogin.setText(newLogin);
+                    pref.setLogin(newLogin);
                     // TODO Ajouter à la table
                     alertDialog.dismiss();
                 }
@@ -156,6 +150,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_settings) {
             fragment = new SettingsFragment();
+        } else if (id == R.id.nav_quit) {
+            System.exit(RESULT_OK);
         } else {
             fragment = new MapsFragment();
         }

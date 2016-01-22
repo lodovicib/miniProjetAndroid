@@ -10,6 +10,8 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -18,13 +20,14 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.m2dl.miniprojetpointinteret.utils.BasicListPoints;
 import com.m2dl.miniprojetpointinteret.R;
 
 /**
  * Created by lgaleron on 10/01/2016.
  */
-public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButtonClickListener {
+public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButtonClickListener{ //,  View.OnClickListener
 
     private Bundle saved;
     private static GoogleMap mMap;
@@ -54,6 +57,20 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
                     .title(saved.getString("tag"))
                     .snippet("Ajouté par : "+ sharedpreferences.getString("login", null));
         listPoints = new BasicListPoints();
+        final Spinner spinner = (Spinner) view.findViewById(R.id.spinnerFiltre);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // your code here
+                System.out.println(spinner.getSelectedItem());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
         return view;
     }
 
@@ -76,6 +93,9 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         LatLng latLng = new LatLng(latitude, longitude);
         for (MarkerOptions m : listPoints.getListPoints()) {
             mMap.addMarker(m);
+        }
+        for (PolygonOptions p : listPoints.getListPolyPoints()) {
+            mMap.addPolygon(p);
         }
         if (newMarker != null) {
             mMap.addMarker(newMarker);
@@ -111,4 +131,10 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         Toast.makeText(MapsFragment.this.getActivity(), "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         return false;
     }
+
+    /*public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.spinnerFiltre:
+        }
+    }*/
 }

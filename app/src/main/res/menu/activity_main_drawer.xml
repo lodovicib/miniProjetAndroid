@@ -26,10 +26,10 @@
                 android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_menu_manage"
                 android:title="Parametres" />
-            <!--<item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />-->
+            <item
+                android:id="@+id/nav_quit"
+                android:icon="@android:drawable/ic_menu_close_clear_cancel"
+                android:title="Quitter" />
         </menu>
     </item>
 

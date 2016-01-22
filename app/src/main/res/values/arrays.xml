@@ -2,7 +2,25 @@
 <resources>
     <string-array name="tagslist">
         <item>Selectionner le tag correspondant</item>
+        <item>Recyclage : verre</item>
+        <item>Recyclage : textille</item>
+        <item>Recyclage : carton</item>
+        <item>Recyclage : pile</item>
+        <item>Recyclage : papier</item>
+        <item>Recyclage : autre</item>
+        <item>Dégradation</item>
+        <item>Fuite d\'eau</item>
+    </string-array>
+
+    <string-array name="tagsfiltre">
+        <item>Tous</item>
         <item>Recyclage</item>
+        <item>Recyclage : verre</item>
+        <item>Recyclage : textille</item>
+        <item>Recyclage : carton</item>
+        <item>Recyclage : pile</item>
+        <item>Recyclage : papier</item>
+        <item>Recyclage : autre</item>
         <item>Dégradation</item>
         <item>Fuite d\'eau</item>
     </string-array>
