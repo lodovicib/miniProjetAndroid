@@ -18,6 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
@@ -35,6 +36,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     private static Double longitude = 1.468520;
     private static View view;
     private MarkerOptions newMarker;
+    private CircleOptions newZone;
     private BasicListPoints listPoints;
     private String MyPREFERENCES = "parametres";
 
@@ -52,17 +54,35 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
 
         saved = getArguments();
         SharedPreferences sharedpreferences = MapsFragment.this.getActivity().getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        if (saved != null && saved.containsKey("latitude"))
-            newMarker = new MarkerOptions().position(new LatLng(saved.getDouble("latitude"), saved.getDouble("longitude")))
+        if (saved != null && saved.containsKey("latitude")) {
+            LatLng latLong = new LatLng(saved.getDouble("latitude"), saved.getDouble("longitude"));
+            if (saved.containsKey("sizeZone"))
+                newZone = new CircleOptions().center(latLong)
+                        .radius(saved.getDouble("sizeZone"));
+                else
+            newMarker = new MarkerOptions().position(latLong)
                     .title(saved.getString("tag"))
-                    .snippet("Ajouté par : "+ sharedpreferences.getString("login", null));
+                    .snippet("Ajouté par : " + sharedpreferences.getString("login", null));
+        }
         listPoints = new BasicListPoints();
         final Spinner spinner = (Spinner) view.findViewById(R.id.spinnerFiltre);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                // your code here
-                System.out.println(spinner.getSelectedItem());
+                mMap.clear();
+                System.out.println(spinner.getSelectedItem().toString().toLowerCase());
+                if (spinner.getSelectedItem().toString().equals("Tous"))
+                    addAllMarker();
+                else {
+                    for (MarkerOptions m : listPoints.getListPoints()) {
+                        String current = m.getTitle().toLowerCase();
+                        if (current.contains(spinner.getSelectedItem().toString().toLowerCase()))
+                            mMap.addMarker(m);
+                    }
+                    for (PolygonOptions p : listPoints.getListPolyPoints(spinner.getSelectedItem().toString().toLowerCase())) {
+                        mMap.addPolygon(p);
+                    }
+                }
             }
 
             @Override
@@ -87,19 +107,26 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         }
     }
 
-    private void setUpMap(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setOnMyLocationButtonClickListener(this);
-        LatLng latLng = new LatLng(latitude, longitude);
+    public void addAllMarker() {
         for (MarkerOptions m : listPoints.getListPoints()) {
             mMap.addMarker(m);
         }
         for (PolygonOptions p : listPoints.getListPolyPoints()) {
             mMap.addPolygon(p);
         }
+    }
+
+    private void setUpMap(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setOnMyLocationButtonClickListener(this);
+        LatLng latLng = new LatLng(latitude, longitude);
+        addAllMarker();
         if (newMarker != null) {
             mMap.addMarker(newMarker);
             latLng = newMarker.getPosition();
+        } else if (newZone != null) {
+            mMap.addCircle(newZone);
+            latLng = newZone.getCenter();
         }
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
         enableMyLocation();

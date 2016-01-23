@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="tagslist">
-        <item>Selectionner le tag correspondant</item>
-        <item>Recyclage : verre</item>
-        <item>Recyclage : textille</item>
-        <item>Recyclage : carton</item>
-        <item>Recyclage : pile</item>
-        <item>Recyclage : papier</item>
-        <item>Recyclage : autre</item>
-        <item>Dégradation</item>
-        <item>Fuite d\'eau</item>
+        <item>Non définit</item>
+        <item>Verre</item>
+        <item>Textille</item>
+        <item>Carton</item>
+        <item>Pile</item>
+        <item>Papier</item>
+        <item>Autre</item>
     </string-array>
 
     <string-array name="tagsfiltre">
@@ -24,4 +22,15 @@
         <item>Dégradation</item>
         <item>Fuite d\'eau</item>
     </string-array>
+
+    <string-array name="diametreList">
+        <item>10</item>
+        <item>50</item>
+        <item>100</item>
+        <item>150</item>
+        <item>200</item>
+        <item>250</item>
+        <item>300</item>
+    </string-array>
+
 </resources>
