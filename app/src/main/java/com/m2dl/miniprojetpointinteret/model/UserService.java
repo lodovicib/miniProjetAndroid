@@ -24,13 +24,12 @@ public class UserService {
         User user = new User(name);
         user.setId(userId);
         if (!userDao.store(user)) {
-            // TODO throw an exception
+            return null;
         }
         return user;
     }
 
     public boolean delete(User user) {
-        // TODO implement it
-        return false;
+        return userDao.delete(user);
     }
 }

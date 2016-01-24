@@ -12,12 +12,13 @@ public class UserDaoFirebase implements IUserDao {
 
     @Override
     public boolean store(User user) {
-        DATABASE.setValue(user);
+        DATABASE.child(user.getId()).setValue(user);
         return true;
     }
 
     @Override
     public boolean delete(User user) {
-        return false;
+        DATABASE.child(user.getId()).removeValue();
+        return true;
     }
 }

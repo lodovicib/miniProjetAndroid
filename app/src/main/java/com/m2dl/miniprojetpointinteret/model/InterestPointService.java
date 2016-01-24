@@ -45,13 +45,17 @@ public class InterestPointService implements InterestPointListener {
     }
 
     public boolean delete(InterestPoint interestPoint) {
-        // TODO implement it
-        return false;
+        return interestPointDao.delete(interestPoint);
     }
 
     @Override
     public void onPointsCreated(List<InterestPoint> interestPoints) {
+        fireValueAdded(interestPoints);
+    }
 
+    @Override
+    public void onReadPointError() {
+        fireErrorOnRead();
     }
 
     public void addListener(InterestPointListener listener) {
@@ -65,6 +69,12 @@ public class InterestPointService implements InterestPointListener {
     private void fireValueAdded(List<InterestPoint> interestPoints) {
         for (InterestPointListener l : listeners) {
             l.onPointsCreated(interestPoints);
+        }
+    }
+
+    private void fireErrorOnRead() {
+        for (InterestPointListener l : listeners) {
+            l.onReadPointError();
         }
     }
 }

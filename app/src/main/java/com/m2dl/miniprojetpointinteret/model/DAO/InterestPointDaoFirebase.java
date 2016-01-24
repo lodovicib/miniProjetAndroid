@@ -1,5 +1,7 @@
 package com.m2dl.miniprojetpointinteret.model.DAO;
 
+import android.util.Log;
+
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -9,6 +11,7 @@ import com.m2dl.miniprojetpointinteret.model.InterestPoint;
 import com.m2dl.miniprojetpointinteret.model.InterestPointListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,52 +29,65 @@ public class InterestPointDaoFirebase implements IInterestPointDao {
         DATABASE.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
+                List<InterestPoint> interestPoints = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String id = snapshot.getValue(String.class);
+                    InterestPoint point = snapshot.child(id).getValue(InterestPoint.class);
+                    if (point != null)
+                        interestPoints.add(point);
+                }
+                if (!interestPoints.isEmpty())
+                    fireValueAdded(interestPoints);
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
+                fireErrorOnRead();
+                Log.e("FirebaseError", firebaseError.getMessage());
             }
         });
         // this one is to push a new point
         DATABASE.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildKey) {
+                InterestPoint newPoint = dataSnapshot.getValue(InterestPoint.class);
+                if (newPoint != null)
+                    fireValueAdded(Arrays.asList(newPoint));
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildKey) {
+                // not yet implemented
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-
+                // not yet implemented
             }
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildKey) {
+                // not yet implemented
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
+                fireErrorOnRead();
+                Log.e("FirebaseError", firebaseError.getMessage());
             }
         });
     }
 
     @Override
     public boolean store(InterestPoint interestPoint) {
-        DATABASE.setValue(interestPoint);
+        DATABASE.child(interestPoint.getId()).setValue(interestPoint);
         return true;
     }
 
     @Override
     public boolean delete(InterestPoint interestPoint) {
-        return false;
+        DATABASE.child(interestPoint.getId()).removeValue();
+        return true;
     }
 
     @Override
@@ -87,6 +103,12 @@ public class InterestPointDaoFirebase implements IInterestPointDao {
     private void fireValueAdded(List<InterestPoint> interestPoints) {
         for (InterestPointListener l : listeners) {
             l.onPointsCreated(interestPoints);
+        }
+    }
+
+    private void fireErrorOnRead() {
+        for (InterestPointListener l : listeners) {
+            l.onReadPointError();
         }
     }
 }

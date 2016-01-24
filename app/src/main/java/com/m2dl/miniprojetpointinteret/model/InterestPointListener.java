@@ -10,4 +10,6 @@ import java.util.List;
 public interface InterestPointListener {
 
     void onPointsCreated(List<InterestPoint> interestPoints);
+
+    void onReadPointError();
 }

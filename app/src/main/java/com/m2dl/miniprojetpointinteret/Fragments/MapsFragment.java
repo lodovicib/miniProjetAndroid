@@ -188,7 +188,11 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
                     .snippet("Ajouté par : " + point.getUserName());
             mMap.addMarker(newMarker);
         }
-        // TODO zoom if there only one point created.
+    }
+
+    @Override
+    public void onReadPointError() {
+        // alert user or not...
     }
 
 
