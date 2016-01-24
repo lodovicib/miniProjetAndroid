@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -23,8 +24,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.m2dl.miniprojetpointinteret.R;
@@ -34,7 +40,7 @@ import java.io.File;
 /**
  * Created by lgaleron on 11/01/2016.
  */
-public class AddFragment extends Fragment implements View.OnClickListener, LocationListener {
+public class AddFragment extends Fragment implements View.OnClickListener, LocationListener, CompoundButton.OnCheckedChangeListener {
 
     private View view;
     private Spinner spinner;
@@ -45,6 +51,12 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
     private Uri imageUri;
     private ImageView imageView;
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+    TextView textViewType;
+    Spinner spinnerTag;
+    CheckBox cRecy, cDeg, cFuite;
+    private Double latitude, longitude;
+    RadioButton rPoint;
+    RadioButton rZone;
 
     public AddFragment() {
         super();
@@ -61,10 +73,34 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
 
         Button b = (Button) view.findViewById(R.id.buttonPhoto);
         Button bAdd = (Button) view.findViewById(R.id.buttonAddPoint);
+        cRecy = (CheckBox) view.findViewById(R.id.checkBoxRecy);
+        rPoint = (RadioButton) view.findViewById(R.id.radioButtonPoint);
+        rZone = (RadioButton) view.findViewById(R.id.radioButtonZone);
         b.setOnClickListener(this);
         bAdd.setOnClickListener(this);
+        cRecy.setOnClickListener(this);
+        rPoint.setOnCheckedChangeListener(this);
+        rZone.setOnCheckedChangeListener(this);
+
+        textViewType = (TextView) view.findViewById(R.id.textViewType);
+        textViewType.setVisibility(View.INVISIBLE);
+        spinnerTag = (Spinner) view.findViewById(R.id.spinnerTag);
+        spinnerTag.setVisibility(View.INVISIBLE);
+
         initLocation();
+        recupLocation();
         return view;
+    }
+
+    public void recupLocation() {
+        try {
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+        } catch (Exception e) {
+            Toast.makeText(AddFragment.this.getActivity(), "Impossible de vous géolocaliser\nVeuillez activer votre position pour ajouter un point d\'intérêt", Toast.LENGTH_SHORT)
+                    .show();
+            Log.e("Location", e.getMessage());
+        }
     }
 
     public void initLocation() {
@@ -103,13 +139,18 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
                 if (resultCode == Activity.RESULT_OK) {
                     Uri selectedImage = imageUri;
                     AddFragment.this.getActivity().getContentResolver().notifyChange(selectedImage, null);
-                    imageView = (ImageView) AddFragment.this.getActivity().findViewById(R.id.imageView2);
+                    imageView = (ImageView) view.findViewById(R.id.imageView2);
                     ContentResolver cr = AddFragment.this.getActivity().getContentResolver();
                     Bitmap bitmap;
                     try {
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(90);
                         bitmap = android.provider.MediaStore.Images.Media
                                 .getBitmap(cr, selectedImage);
-                        imageView.setImageBitmap(bitmap);
+                        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        imageView.setImageBitmap(rotatedBitmap);
+                        System.out.println(rotatedBitmap.getHeight());
+                        recupLocation();
                     } catch (Exception e) {
                         Toast.makeText(AddFragment.this.getActivity(), "Failed to load", Toast.LENGTH_SHORT)
                                 .show();
@@ -119,27 +160,67 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
         }
     }
 
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked) {
+            if (buttonView.getId() == R.id.radioButtonPoint) {
+                rZone.setChecked(false);
+            }
+            if (buttonView.getId() == R.id.radioButtonZone) {
+                rPoint.setChecked(false);
+            }
+        }
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.checkBoxRecy:
+                if (cRecy.isChecked()) {
+                    textViewType.setVisibility(View.VISIBLE);
+                    spinnerTag.setVisibility(View.VISIBLE);
+                } else {
+                    textViewType.setVisibility(View.INVISIBLE);
+                    spinnerTag.setVisibility(View.INVISIBLE);
+                }
+                break;
             case R.id.buttonPhoto:
                 takePhoto(v);
                 break;
             case R.id.buttonAddPoint:
-                spinner = (Spinner) AddFragment.this.getActivity().findViewById(R.id.spinnerTag);
                 String errorText = "";
-                if (spinner == null || spinner.getSelectedItemPosition() == 0)
-                    errorText += "- Sélectionner un tag\n";
+                cDeg = (CheckBox) view.findViewById(R.id.checkBoxDeg);
+                cFuite = (CheckBox) view.findViewById(R.id.checkBoxFuite);
+
+                if (!cDeg.isChecked() && !cFuite.isChecked() && !cRecy.isChecked())
+                    errorText += "- Sélectionner au moins 1 tag\n";
                 if (imageView == null)
                     errorText += "- Mettre une image du point d\'intéret";
-                // TODO n'ajouter que si on est à la fac !
-                if (!errorText.equals(""))
+                if (latitude == null)
+                    Toast.makeText(AddFragment.this.getActivity(), "Problème de géolocalisation", Toast.LENGTH_SHORT)
+                            .show();
+                else if (!errorText.equals(""))
                     Toast.makeText(AddFragment.this.getActivity(), "Veuillez remplir les champs suivants :\n"+errorText, Toast.LENGTH_SHORT)
                             .show();
-                else
+                else {
                     addPoint();
+                }
+                // TODO n'ajouter que si on est à la fac !
                 break;
         }
+    }
+
+    public String getTitleTag() {
+        String text = "";
+        if (cDeg.isChecked())
+            text += cDeg.getText()+"\n";
+        if (cFuite.isChecked())
+            text += cFuite.getText()+"\n";
+        if (cRecy.isChecked()) {
+            text += cRecy.getText();
+            if (spinner != null && spinner.getSelectedItemPosition() != 0)
+                text += " : "+ spinner.getSelectedItem().toString();
+        }
+        return text;
     }
 
     public void addPoint() {
@@ -147,9 +228,13 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
         // MapsFragment will know the change with firebase ValueChangeEvent
         Fragment fragmentMap = new MapsFragment();
         Bundle bundle = new Bundle();
-        bundle.putDouble("latitude", location.getLatitude());
-        bundle.putDouble("longitude", location.getLongitude());
-        bundle.putString("tag", spinner.getSelectedItem().toString());
+        bundle.putDouble("latitude", latitude);
+        bundle.putDouble("longitude", longitude);
+        bundle.putString("tag", getTitleTag());
+        if (rZone.isChecked()) {
+            Spinner s = (Spinner) view.findViewById(R.id.spinnerDiam);
+            bundle.putInt("sizeZone", Integer.parseInt(s.getSelectedItem().toString()));
+        }
         fragmentMap.setArguments(bundle);
 
         android.support.v4.app.FragmentManager fragmentManager =  AddFragment.this.getActivity().getSupportFragmentManager();
