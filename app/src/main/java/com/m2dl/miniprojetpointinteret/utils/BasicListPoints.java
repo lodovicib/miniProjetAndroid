@@ -23,7 +23,6 @@ public class BasicListPoints {
     private List<PolygonOptions> listPolyCarton;
     private List<PolygonOptions> listPolyPile;
     private List<PolygonOptions> listPolyPapier;
-    private BindService bindService;
 
     public BasicListPoints() {
         listPoints = new ArrayList<>();
@@ -33,9 +32,6 @@ public class BasicListPoints {
         listPolyPile = new ArrayList<>();
         listPolyPapier = new ArrayList<>();
         initPolyPoints();
-
-        bindService = new BindService();
-       // System.out.println(bindService.getInterestPointService());
     }
 
     private void initPolyPoints() {

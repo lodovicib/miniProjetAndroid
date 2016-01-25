@@ -9,7 +9,7 @@ import com.m2dl.miniprojetpointinteret.utils.IdGenerator;
 /**
  * Created by Romain on 22/01/2016.
  */
-public class BindService {
+public final class BindService {
 
     private IInterestPointDao interestPointDao;
     private IUserDao userDao;
@@ -17,7 +17,9 @@ public class BindService {
     private InterestPointService interestPointService;
     private IdGenerator generator;
 
-    public BindService() {
+    private static volatile BindService instance = new BindService();
+
+    private BindService() {
         generator = new IdGenerator();
         userDao = new UserDaoFirebase();
         interestPointDao = new InterestPointDaoFirebase();
@@ -26,11 +28,15 @@ public class BindService {
         interestPointDao.addListener(interestPointService);
     }
 
-    public UserService getUserService() {
+    public final static BindService getInstance() {
+        return instance;
+    }
+
+    public final UserService getUserService() {
         return userService;
     }
 
-    public InterestPointService getInterestPointService() {
+    public final InterestPointService getInterestPointService() {
         return interestPointService;
     }
 }

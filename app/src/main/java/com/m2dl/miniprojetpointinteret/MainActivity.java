@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         Firebase.setAndroidContext(this);
-        bindService = new BindService();
+        bindService = BindService.getInstance();
         ((MapsFragment) fragment).setInterestPointService(bindService.getInterestPointService());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
