@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.m2dl.miniprojetpointinteret.model.BindService;
 import com.m2dl.miniprojetpointinteret.model.InterestPoint;
 import com.m2dl.miniprojetpointinteret.model.InterestPointListener;
 import com.m2dl.miniprojetpointinteret.model.InterestPointService;
@@ -45,6 +46,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     private BasicListPoints listPoints;
     private String MyPREFERENCES = "parametres";
     private InterestPointService interestPointService;
+    private BindService bindService;
 
     public MapsFragment() {
         super();
@@ -69,23 +71,27 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         if (saved != null && saved.containsKey("latitude")) {
             LatLng latLong = new LatLng(saved.getDouble("latitude"), saved.getDouble("longitude"));
             if (saved.containsKey("sizeZone")) {
-                System.out.println(saved.getDouble("sizeZone"));
+                System.out.println("sizeZone : "+saved.getDouble("sizeZone"));
                 newZone = new CircleOptions().center(latLong)
                         .radius(saved.getDouble("sizeZone"));
+                //if (mMap != null)
+                  //  mMap.addCircle(newZone);
             } else {
-                System.out.println(saved.getString("tag"));
+                System.out.println("tag : "+ saved.getString("tag"));
                 newMarker = new MarkerOptions().position(latLong)
                         .title(saved.getString("tag"))
                         .snippet("Ajouté par : " + sharedpreferences.getString("login", null));
+               // if (mMap != null)
+                 //   mMap.addMarker(newMarker);
             }
         }
         listPoints = new BasicListPoints();
         final Spinner spinner = (Spinner) view.findViewById(R.id.spinnerFiltre);
+        bindService = BindService.getInstance();
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 mMap.clear();
-                System.out.println(spinner.getSelectedItem().toString().toLowerCase());
                 if (spinner.getSelectedItem().toString().equals("Tous"))
                     addAllMarker();
                 else {
@@ -104,7 +110,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
             public void onNothingSelected(AdapterView<?> parentView) {
                 // your code here
             }
-
         });
         return view;
     }
@@ -134,14 +139,14 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     private void setUpMap(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this.getActivity().getLayoutInflater()));
         LatLng latLng = new LatLng(latitude, longitude);
         addAllMarker();
-        System.out.println(newMarker);
         if (newMarker != null) {
-            mMap.addMarker(newMarker);
+//            mMap.addMarker(newMarker);
             latLng = newMarker.getPosition();
         } else if (newZone != null) {
-            mMap.addCircle(newZone);
+           // mMap.addCircle(newZone);
             latLng = newZone.getCenter();
         }
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
@@ -171,7 +176,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
 
     @Override
     public boolean onMyLocationButtonClick() {
-        Toast.makeText(MapsFragment.this.getActivity(), "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         return false;
     }
 

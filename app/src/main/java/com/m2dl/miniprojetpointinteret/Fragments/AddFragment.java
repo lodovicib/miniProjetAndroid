@@ -95,7 +95,7 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
 
         initLocation();
         //recupLocation();
-        bindService = new BindService();
+        bindService = BindService.getInstance();
         pref = new Preferences(this.getActivity());
         return view;
     }
@@ -117,7 +117,9 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
         critere.setAccuracy(Criteria.ACCURACY_FINE);
         if (ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+            String locationProvider = LocationManager.NETWORK_PROVIDER;
+            // Or use LocationManager.GPS_PROVIDER
+            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
         }
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             abonnementGPS();
@@ -157,7 +159,6 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
                                 .getBitmap(cr, selectedImage);
                         Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
                         imageView.setImageBitmap(rotatedBitmap);
-                        System.out.println(rotatedBitmap.getHeight());
                         recupLocation();
                     } catch (Exception e) {
                         Toast.makeText(AddFragment.this.getActivity(), "Failed to load", Toast.LENGTH_SHORT)

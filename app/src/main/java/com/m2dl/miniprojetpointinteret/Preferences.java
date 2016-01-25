@@ -25,7 +25,7 @@ public class Preferences {
     public Preferences(MainActivity main) {
         sharedpreferences = main.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         navigationView = (NavigationView) main.findViewById(R.id.nav_view);
-        bindService = new BindService();
+        bindService = BindService.getInstance();
         init();
     }
 

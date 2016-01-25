@@ -1,10 +1,9 @@
 package com.m2dl.miniprojetpointinteret;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -13,11 +12,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -34,8 +31,8 @@ public class MainActivity extends AppCompatActivity
     FragmentTransaction transaction;
     private android.support.v4.app.FragmentManager fragmentManager;
     Preferences pref;
+    FloatingActionButton fab;
     private String login;
-    TextView textLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +55,18 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fragment = new AddFragment();
+                fab.setVisibility(View.INVISIBLE);
+                switchFragment();
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+            }
+        });
+
         pref = new Preferences(this);
         login = pref.getLogin();
         if (login == null)
@@ -71,6 +80,7 @@ public class MainActivity extends AppCompatActivity
     private void createMapsFragment() {
         fragment = new MapsFragment();
         ((MapsFragment) fragment).setInterestPointService(bindService.getInterestPointService());
+        
     }
 
     public void alertBoxPseudo() {
@@ -105,8 +115,8 @@ public class MainActivity extends AppCompatActivity
                 if (!errorTxt.equals(""))
                     Toast.makeText(MainActivity.this, errorTxt, Toast.LENGTH_SHORT).show();
                 else {
-                    pref.setLogin(newLogin);
                     // TODO Ajouter à la table
+                    pref.setLogin(newLogin);
                     alertDialog.dismiss();
                 }
             }
@@ -123,28 +133,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    /* Barre en haut */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     /* Menu sur le coté*/
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -152,12 +140,13 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.nav_map) {
             createMapsFragment();
+            fab.setVisibility(View.VISIBLE);
         } else if (id == R.id.nav_addPI) {
             fragment = new AddFragment();
-        } else if (id == R.id.nav_slideshow) {
-
+            fab.setVisibility(View.INVISIBLE);
         } else if (id == R.id.nav_settings) {
             fragment = new SettingsFragment();
+            fab.setVisibility(View.INVISIBLE);
         } else if (id == R.id.nav_quit) {
             System.exit(RESULT_OK);
         } else {

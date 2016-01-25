@@ -20,8 +20,8 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     protected void runTest() throws Throwable {
         super.runTest();
         IUserDao repos = new UserDaoFirebase();
-        UserService service = new UserService(repos);
+        //UserService service = new UserService(repos);
 
-        service.createUser("test");
+        //service.createUser("test");
     }
 }
