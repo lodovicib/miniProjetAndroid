@@ -10,14 +10,6 @@
             android:id="@+id/nav_addPI"
             android:icon="@android:drawable/ic_menu_add"
             android:title="Ajouter un point d'intéret" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@android:drawable/ic_menu_search"
-            android:title="Rechercher" />
-      <!--  <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" /> -->
     </group>
 
     <item android:title="Options">

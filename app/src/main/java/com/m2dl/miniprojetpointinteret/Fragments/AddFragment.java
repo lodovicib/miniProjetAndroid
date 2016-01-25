@@ -33,9 +33,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.m2dl.miniprojetpointinteret.Preferences;
 import com.m2dl.miniprojetpointinteret.R;
+import com.m2dl.miniprojetpointinteret.model.BindService;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lgaleron on 11/01/2016.
@@ -57,6 +61,8 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
     private Double latitude, longitude;
     RadioButton rPoint;
     RadioButton rZone;
+    private BindService bindService;
+    private Preferences pref;
 
     public AddFragment() {
         super();
@@ -88,7 +94,9 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
         spinnerTag.setVisibility(View.INVISIBLE);
 
         initLocation();
-        recupLocation();
+        //recupLocation();
+        bindService = new BindService();
+        pref = new Preferences(this.getActivity());
         return view;
     }
 
@@ -195,10 +203,11 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
                     errorText += "- Sélectionner au moins 1 tag\n";
                 if (imageView == null)
                     errorText += "- Mettre une image du point d\'intéret";
-                if (latitude == null)
+                if (latitude == null) {
                     Toast.makeText(AddFragment.this.getActivity(), "Problème de géolocalisation", Toast.LENGTH_SHORT)
                             .show();
-                else if (!errorText.equals(""))
+                    recupLocation();
+                } else if (!errorText.equals(""))
                     Toast.makeText(AddFragment.this.getActivity(), "Veuillez remplir les champs suivants :\n"+errorText, Toast.LENGTH_SHORT)
                             .show();
                 else {
@@ -209,28 +218,30 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
         }
     }
 
-    public String getTitleTag() {
-        String text = "";
+    public List<String> getTitleTag() {
+        List<String> list = new ArrayList<String>();
         if (cDeg.isChecked())
-            text += cDeg.getText()+"\n";
+            list.add(cDeg.getText().toString());
         if (cFuite.isChecked())
-            text += cFuite.getText()+"\n";
+            list.add(cFuite.getText().toString());
         if (cRecy.isChecked()) {
-            text += cRecy.getText();
             if (spinner != null && spinner.getSelectedItemPosition() != 0)
-                text += " : "+ spinner.getSelectedItem().toString();
+                list.add(cRecy.getText().toString()+" : "+ spinner.getSelectedItem().toString());
+            else
+                list.add(cRecy.getText().toString());
         }
-        return text;
+        return list;
     }
 
     public void addPoint() {
         // TODO use interestPoint service to store the new point (createPoint())
         // MapsFragment will know the change with firebase ValueChangeEvent
         Fragment fragmentMap = new MapsFragment();
+        bindService.getInterestPointService().createPoint(longitude, latitude, 0, null, pref.getLogin(), getTitleTag());
         Bundle bundle = new Bundle();
         bundle.putDouble("latitude", latitude);
         bundle.putDouble("longitude", longitude);
-        bundle.putString("tag", getTitleTag());
+       // bundle.putString("tag", getTitleTag());
         if (rZone.isChecked()) {
             Spinner s = (Spinner) view.findViewById(R.id.spinnerDiam);
             bundle.putInt("sizeZone", Integer.parseInt(s.getSelectedItem().toString()));

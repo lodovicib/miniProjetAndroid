@@ -55,7 +55,17 @@
                 android:text="Prendre une photo"
                 android:id="@+id/buttonPhoto"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="5dp"/>
+                android:layout_marginTop="5dp"
+                android:textColor="#FFFFFF"
+                android:textSize="30sp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/buttonshape"
+                android:shadowColor="#A8A8A8"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="5"/>
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -183,9 +193,16 @@
                     android:layout_height="wrap_content"
                     android:text="Ajouter"
                     android:layout_width="fill_parent"
+                    android:textColor="#FFFFFF"
+                    android:textSize="30sp"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true">
+                    android:layout_alignParentStart="true"
+                    android:background="@drawable/buttonshape"
+                    android:shadowColor="#A8A8A8"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="5">
                 </Button>
             </LinearLayout>
 

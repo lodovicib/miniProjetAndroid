@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.m2dl.miniprojetpointinteret.model.BindService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class BasicListPoints {
     private List<PolygonOptions> listPolyCarton;
     private List<PolygonOptions> listPolyPile;
     private List<PolygonOptions> listPolyPapier;
+    private BindService bindService;
 
     public BasicListPoints() {
         listPoints = new ArrayList<>();
@@ -31,6 +33,9 @@ public class BasicListPoints {
         listPolyPile = new ArrayList<>();
         listPolyPapier = new ArrayList<>();
         initPolyPoints();
+
+        bindService = new BindService();
+       // System.out.println(bindService.getInterestPointService());
     }
 
     private void initPolyPoints() {

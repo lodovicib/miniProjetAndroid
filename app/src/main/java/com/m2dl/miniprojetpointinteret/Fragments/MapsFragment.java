@@ -68,13 +68,16 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         SharedPreferences sharedpreferences = MapsFragment.this.getActivity().getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         if (saved != null && saved.containsKey("latitude")) {
             LatLng latLong = new LatLng(saved.getDouble("latitude"), saved.getDouble("longitude"));
-            if (saved.containsKey("sizeZone"))
+            if (saved.containsKey("sizeZone")) {
+                System.out.println(saved.getDouble("sizeZone"));
                 newZone = new CircleOptions().center(latLong)
                         .radius(saved.getDouble("sizeZone"));
-                else
-            newMarker = new MarkerOptions().position(latLong)
-                    .title(saved.getString("tag"))
-                    .snippet("Ajouté par : " + sharedpreferences.getString("login", null));
+            } else {
+                System.out.println(saved.getString("tag"));
+                newMarker = new MarkerOptions().position(latLong)
+                        .title(saved.getString("tag"))
+                        .snippet("Ajouté par : " + sharedpreferences.getString("login", null));
+            }
         }
         listPoints = new BasicListPoints();
         final Spinner spinner = (Spinner) view.findViewById(R.id.spinnerFiltre);
@@ -133,6 +136,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         mMap.setOnMyLocationButtonClickListener(this);
         LatLng latLng = new LatLng(latitude, longitude);
         addAllMarker();
+        System.out.println(newMarker);
         if (newMarker != null) {
             mMap.addMarker(newMarker);
             latLng = newMarker.getPosition();
@@ -174,6 +178,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     @Override
     public void onPointsCreated(List<InterestPoint> interestPoints) {
         for (InterestPoint point : interestPoints) {
+            System.out.println(point);
             String tags = "";
             for (String tag : point.getTags()) {
                 tags += tag + " ";
@@ -185,4 +190,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         }
         // TODO zoom if there only one point created.
     }
+
+
 }

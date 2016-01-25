@@ -7,6 +7,9 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.m2dl.miniprojetpointinteret.model.BindService;
+import com.m2dl.miniprojetpointinteret.model.User;
+
 /**
  * Created by lgaleron on 22/01/2016.
  */
@@ -17,10 +20,12 @@ public class Preferences {
     NavigationView navigationView;
     TextView textLogin;
     View headView;
+    BindService bindService;
 
     public Preferences(MainActivity main) {
         sharedpreferences = main.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         navigationView = (NavigationView) main.findViewById(R.id.nav_view);
+        bindService = new BindService();
         init();
     }
 
@@ -39,11 +44,21 @@ public class Preferences {
         return sharedpreferences.getString("login", null);
     }
 
-    public void setLogin(String login) {
+    public void setLogin(String newLogin) {
+        User user;
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString("login", login);
+        if (getId() == null) {
+            user = bindService.getUserService().createUser(newLogin);
+            editor.putString("id", user.getId());
+        } else
+            user = bindService.getUserService().changeName(getId(), newLogin);
+        editor.putString("login", user.getName());
         editor.apply();
         setTextHeader();
+    }
+
+    public String getId() {
+        return sharedpreferences.getString("id", null);
     }
 
     public void setTextHeader() {
