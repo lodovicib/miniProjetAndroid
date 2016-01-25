@@ -50,7 +50,8 @@ public class InterestPointDaoFirebase implements IInterestPointDao {
         DATABASE.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildKey) {
-                InterestPoint newPoint = dataSnapshot.getValue(InterestPoint.class);
+                String id = dataSnapshot.getValue(String.class);
+                InterestPoint newPoint = dataSnapshot.child(id).getValue(InterestPoint.class);
                 if (newPoint != null)
                     fireValueAdded(Arrays.asList(newPoint));
             }
