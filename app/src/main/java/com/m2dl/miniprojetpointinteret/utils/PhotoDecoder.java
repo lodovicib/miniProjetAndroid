@@ -1,16 +1,17 @@
 package com.m2dl.miniprojetpointinteret.utils;
 
+import android.util.Base64;
+
 /**
  * Created by Romain on 22/01/2016.
  */
-// TODO implement it
 public class PhotoDecoder {
 
-    public static String byteToBase64(byte[] img) {
-        return null;
+    public static String byteToString(byte[] img) {
+        return Base64.encodeToString(img, Base64.DEFAULT);
     }
 
-    public static byte[] base64ToByte(String file) {
-        return null;
+    public static byte[] stringToByte(String file) {
+        return Base64.decode(file, Base64.DEFAULT);
     }
 }

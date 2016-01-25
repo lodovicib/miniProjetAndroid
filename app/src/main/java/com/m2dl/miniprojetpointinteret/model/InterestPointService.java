@@ -33,7 +33,7 @@ public class InterestPointService implements InterestPointListener {
         point.setId(generator.getIdAsString());
         point.setLatitude(latitude);
         point.setLongitude(longitude);
-        point.setPhoto(PhotoDecoder.byteToBase64(photo));
+        point.setPhoto(PhotoDecoder.byteToString(photo));
         point.setRadius(radius);
         point.setUserName(userName);
         point.setTags(tags);
