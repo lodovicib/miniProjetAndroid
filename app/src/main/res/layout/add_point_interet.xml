@@ -89,7 +89,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sélectionner au moins 1 tag pour définir votre point d&apos;intérêt"
+                android:text="Tag(s) définissant le point d&apos;intérêt"
                 android:id="@+id/textView6" />
 
             <CheckBox
