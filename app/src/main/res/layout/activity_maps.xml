@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -31,7 +32,15 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/spinner_background_holo_light"
                 android:entries="@array/tagsfiltre" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageButton"
+                android:layout_gravity="right"
+                android:src="@android:drawable/ic_menu_help" />
         </LinearLayout>
+
         <View
             android:layout_width="fill_parent"
             android:layout_height="1dip"
@@ -47,7 +56,8 @@
                 android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:tag="Google_Map" />
+                android:tag="Google_Map"
+                tools:layout="@layout/abc_action_bar_title_item" />
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>
