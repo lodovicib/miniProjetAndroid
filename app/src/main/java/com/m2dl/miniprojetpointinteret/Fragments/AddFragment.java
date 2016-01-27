@@ -236,6 +236,9 @@ public class AddFragment extends Fragment implements View.OnClickListener,
                     Toast.makeText(AddFragment.this.getActivity(), "Problème de géolocalisation", Toast.LENGTH_SHORT)
                             .show();
                     recupLocation();
+                } else if(tooFarawayUPS()) {
+                    Toast.makeText(AddFragment.this.getActivity(), "Vous êtes trop loin de la fac", Toast.LENGTH_SHORT)
+                            .show();
                 } else if (!errorText.equals(""))
                     Toast.makeText(AddFragment.this.getActivity(), "Veuillez remplir les champs suivants :\n" + errorText, Toast.LENGTH_SHORT)
                             .show();

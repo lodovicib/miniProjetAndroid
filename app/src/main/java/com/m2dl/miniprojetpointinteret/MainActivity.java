@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
         } else {
-            if (navigationView.getHeaderCount() == 1)
+            if (fragmentManager.findFragmentById(R.id.content_frame) instanceof MapsFragment)
                 System.exit(RESULT_OK);
             else {
                 createMapsFragment();
