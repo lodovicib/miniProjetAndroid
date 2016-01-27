@@ -1,6 +1,5 @@
 package com.m2dl.miniprojetpointinteret.model;
 
-import com.m2dl.miniprojetpointinteret.model.DAO.IUserDao;
 import com.m2dl.miniprojetpointinteret.utils.IdGenerator;
 
 /**

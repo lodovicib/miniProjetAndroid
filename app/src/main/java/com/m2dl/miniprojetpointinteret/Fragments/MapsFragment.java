@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,7 +21,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
-import com.m2dl.miniprojetpointinteret.model.BindService;
 import com.m2dl.miniprojetpointinteret.model.InterestPoint;
 import com.m2dl.miniprojetpointinteret.model.InterestPointListener;
 import com.m2dl.miniprojetpointinteret.model.InterestPointService;
@@ -46,7 +44,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     private BasicListPoints listPoints;
     private String MyPREFERENCES = "parametres";
     private InterestPointService interestPointService;
-    private BindService bindService;
 
     public MapsFragment() {
         super();
@@ -87,7 +84,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         }
         listPoints = new BasicListPoints();
         final Spinner spinner = (Spinner) view.findViewById(R.id.spinnerFiltre);
-        bindService = BindService.getInstance();
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -189,7 +185,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
             }
             MarkerOptions newMarker = new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))
                     .title(tags)
-                    .snippet("Ajouté par : " + point.getUserName());
+                    .snippet("Ajouté par : " + point.getUsername());
             mMap.addMarker(newMarker);
         }
     }

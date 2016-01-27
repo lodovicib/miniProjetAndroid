@@ -21,12 +21,17 @@ import com.firebase.client.Firebase;
 import com.m2dl.miniprojetpointinteret.Fragments.AddFragment;
 import com.m2dl.miniprojetpointinteret.Fragments.MapsFragment;
 import com.m2dl.miniprojetpointinteret.Fragments.SettingsFragment;
-import com.m2dl.miniprojetpointinteret.model.BindService;
+import com.m2dl.miniprojetpointinteret.model.IInterestPointDao;
+import com.m2dl.miniprojetpointinteret.model.IUserDao;
+import com.m2dl.miniprojetpointinteret.model.InterestPointDaoFirebase;
+import com.m2dl.miniprojetpointinteret.model.UserDaoFirebase;
+import com.m2dl.miniprojetpointinteret.model.InterestPointService;
+import com.m2dl.miniprojetpointinteret.model.UserService;
+import com.m2dl.miniprojetpointinteret.utils.IdGenerator;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private BindService bindService;
     Fragment fragment = new MapsFragment();
     FragmentTransaction transaction;
     private android.support.v4.app.FragmentManager fragmentManager;
@@ -34,14 +39,28 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton fab;
     private String login;
 
+    private Firebase database;
+    private IInterestPointDao interestPointDao;
+    private IUserDao userDao;
+    private UserService userService;
+    private InterestPointService interestPointService;
+    private IdGenerator generator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         Firebase.setAndroidContext(this);
-        bindService = BindService.getInstance();
-        ((MapsFragment) fragment).setInterestPointService(bindService.getInterestPointService());
+        database = new Firebase("https://dazzling-heat-8823.firebaseio.com");
+        generator = new IdGenerator();
+        userDao = new UserDaoFirebase(database);
+        interestPointDao = new InterestPointDaoFirebase(database);
+        userService = new UserService(userDao, generator);
+        interestPointService = new InterestPointService(interestPointDao, generator);
+        interestPointDao.addListener(interestPointService);
+
+        ((MapsFragment) fragment).setInterestPointService(interestPointService);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -60,6 +79,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 fragment = new AddFragment();
+                ((AddFragment) fragment).setPointService(interestPointService);
                 fab.setVisibility(View.INVISIBLE);
                 switchFragment();
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -68,6 +88,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         pref = new Preferences(this);
+        pref.setUserService(userService);
         login = pref.getLogin();
         if (login == null)
             alertBoxPseudo();
@@ -79,7 +100,7 @@ public class MainActivity extends AppCompatActivity
 
     private void createMapsFragment() {
         fragment = new MapsFragment();
-        ((MapsFragment) fragment).setInterestPointService(bindService.getInterestPointService());
+        ((MapsFragment) fragment).setInterestPointService(interestPointService);
         
     }
 
@@ -143,6 +164,7 @@ public class MainActivity extends AppCompatActivity
             fab.setVisibility(View.VISIBLE);
         } else if (id == R.id.nav_addPI) {
             fragment = new AddFragment();
+            ((AddFragment) fragment).setPointService(interestPointService);
             fab.setVisibility(View.INVISIBLE);
         } else if (id == R.id.nav_settings) {
             fragment = new SettingsFragment();

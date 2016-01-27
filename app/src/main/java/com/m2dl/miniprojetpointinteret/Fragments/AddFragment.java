@@ -28,14 +28,13 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.m2dl.miniprojetpointinteret.Preferences;
 import com.m2dl.miniprojetpointinteret.R;
-import com.m2dl.miniprojetpointinteret.model.BindService;
+import com.m2dl.miniprojetpointinteret.model.InterestPointService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,12 +60,16 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
     private Double latitude, longitude;
     RadioButton rPoint;
     RadioButton rZone;
-    private BindService bindService;
     private Preferences pref;
+    private InterestPointService interestPointService;
 
     public AddFragment() {
         super();
         setArguments(new Bundle());
+    }
+
+    public void setPointService(InterestPointService interestPointService) {
+        this.interestPointService = interestPointService;
     }
 
     @Override
@@ -94,8 +97,6 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
         spinnerTag.setVisibility(View.INVISIBLE);
 
         initLocation();
-        //recupLocation();
-        bindService = BindService.getInstance();
         pref = new Preferences(this.getActivity());
         return view;
     }
@@ -238,7 +239,7 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
         // TODO use interestPoint service to store the new point (createPoint())
         // MapsFragment will know the change with firebase ValueChangeEvent
         Fragment fragmentMap = new MapsFragment();
-        bindService.getInterestPointService().createPoint(longitude, latitude, 0, null, pref.getLogin(), getTitleTag());
+        interestPointService.createPoint(longitude, latitude, 0, null, pref.getLogin(), getTitleTag());
         Bundle bundle = new Bundle();
         bundle.putDouble("latitude", latitude);
         bundle.putDouble("longitude", longitude);

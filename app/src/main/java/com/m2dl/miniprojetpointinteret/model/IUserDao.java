@@ -1,4 +1,4 @@
-package com.m2dl.miniprojetpointinteret.model.DAO;
+package com.m2dl.miniprojetpointinteret.model;
 
 import com.m2dl.miniprojetpointinteret.model.User;
 

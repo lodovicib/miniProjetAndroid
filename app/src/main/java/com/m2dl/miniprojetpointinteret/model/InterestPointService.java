@@ -1,6 +1,5 @@
 package com.m2dl.miniprojetpointinteret.model;
 
-import com.m2dl.miniprojetpointinteret.model.DAO.IInterestPointDao;
 import com.m2dl.miniprojetpointinteret.utils.IdGenerator;
 import com.m2dl.miniprojetpointinteret.utils.PhotoDecoder;
 
@@ -35,7 +34,7 @@ public class InterestPointService implements InterestPointListener {
         point.setLongitude(longitude);
         point.setPhoto(PhotoDecoder.byteToString(photo));
         point.setRadius(radius);
-        point.setUserName(userName);
+        point.setUsername(userName);
         point.setTags(tags);
         point.setDate(new Date().getTime());
         if (!interestPointDao.store(point)) {

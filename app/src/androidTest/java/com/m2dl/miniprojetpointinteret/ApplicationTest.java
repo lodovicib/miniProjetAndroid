@@ -3,9 +3,8 @@ package com.m2dl.miniprojetpointinteret;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import com.m2dl.miniprojetpointinteret.model.DAO.IUserDao;
-import com.m2dl.miniprojetpointinteret.model.DAO.UserDaoFirebase;
-import com.m2dl.miniprojetpointinteret.model.UserService;
+import com.m2dl.miniprojetpointinteret.model.IUserDao;
+import com.m2dl.miniprojetpointinteret.model.UserDaoFirebase;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>

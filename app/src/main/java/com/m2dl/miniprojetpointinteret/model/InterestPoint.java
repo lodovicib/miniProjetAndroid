@@ -12,7 +12,7 @@ public class InterestPoint {
     private double latitude;
     private double radius;
     private String photo;
-    private String userName;
+    private String username;
     private List<String> tags;
     private long date;
 
@@ -34,12 +34,12 @@ public class InterestPoint {
         this.radius = radius;
     }
 
-    public void setPhoto(String photoUrl) {
-        this.photo = photoUrl;
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setTags(List<String> tags) {
@@ -66,12 +66,12 @@ public class InterestPoint {
         return radius;
     }
 
-    public String getPhotoUrl() {
+    public String getPhoto() {
         return photo;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
     public List<String> getTags() {

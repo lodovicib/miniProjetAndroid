@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-        <string name="google_maps_key_instructions" templateMergeStrategy="replace"></string>
-
-        <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyDU3IFU96b145BCzrIHp7NsId3D-e5Jgog</string>
-       <!-- <integer name="google_play_services_version" templateMergeStrategy="preserve">2</integer>
--->
-
-</resources>
