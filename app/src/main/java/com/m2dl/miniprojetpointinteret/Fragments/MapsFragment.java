@@ -1,37 +1,42 @@
 package com.m2dl.miniprojetpointinteret.Fragments;
 
 import android.Manifest;
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.m2dl.miniprojetpointinteret.Preferences;
+import com.m2dl.miniprojetpointinteret.R;
 import com.m2dl.miniprojetpointinteret.model.InterestPoint;
 import com.m2dl.miniprojetpointinteret.model.InterestPointListener;
 import com.m2dl.miniprojetpointinteret.model.InterestPointService;
 import com.m2dl.miniprojetpointinteret.utils.BasicListPoints;
-import com.m2dl.miniprojetpointinteret.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by lgaleron on 10/01/2016.
- */
 public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButtonClickListener, InterestPointListener {
 
     private Bundle saved;
@@ -42,8 +47,9 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     private MarkerOptions newMarker;
     private CircleOptions newZone;
     private BasicListPoints listPoints;
-    private String MyPREFERENCES = "parametres";
     private InterestPointService interestPointService;
+    private Preferences pref;
+    private List<MarkerOptions> stayedPoint = new ArrayList<>();
 
     public MapsFragment() {
         super();
@@ -61,28 +67,73 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
             return null;
         }
         view = inflater.inflate(R.layout.activity_maps, container, false);
+        pref = new Preferences(this.getActivity());
 
-        // TODO delete this code: new point will be added with the InterestPointListener
         saved = getArguments();
-        SharedPreferences sharedpreferences = MapsFragment.this.getActivity().getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         if (saved != null && saved.containsKey("latitude")) {
             LatLng latLong = new LatLng(saved.getDouble("latitude"), saved.getDouble("longitude"));
             if (saved.containsKey("sizeZone")) {
-                System.out.println("sizeZone : "+saved.getDouble("sizeZone"));
+                System.out.println("sizeZone : " + saved.getDouble("sizeZone"));
                 newZone = new CircleOptions().center(latLong)
                         .radius(saved.getDouble("sizeZone"));
-                //if (mMap != null)
-                  //  mMap.addCircle(newZone);
             } else {
-                System.out.println("tag : "+ saved.getString("tag"));
+                System.out.println("tag : " + saved.getString("tag"));
                 newMarker = new MarkerOptions().position(latLong)
                         .title(saved.getString("tag"))
-                        .snippet("Ajouté par : " + sharedpreferences.getString("login", null));
-               // if (mMap != null)
-                 //   mMap.addMarker(newMarker);
+                        .snippet("Ajouté par : " + pref.getLogin());
+                BitmapDescriptor color = getColorMarker(saved.getString("tag"));
+                if (color != null)
+                    newMarker.icon(color);
             }
         }
+
+        if (pref.getCurrentPoint() != null) {
+            pref.getCurrentPoint().setVisible(false);
+            pref.setCurrentPoint(null);
+        }
+        if (mMap == null) {
+            ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    Log.e("setupMap", "je setup la map");
+                    setUpMap(googleMap);
+                }
+            });
+        }
         listPoints = new BasicListPoints();
+
+        ImageButton help = (ImageButton) view.findViewById(R.id.imageButton);
+
+        help.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                final Dialog dialog = new Dialog(getContext());
+                dialog.setContentView(R.layout.help_dialog);
+                dialog.setTitle("Légende de la carte");
+                // set the custom dialog components - text, image and button
+                Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
+                dialogButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+                dialog.show();
+            }
+        });
+        return view;
+    }
+
+    private BitmapDescriptor getColorMarker(String tag) {
+        if (tag.contains("Recyclage : Verre"))
+            return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+        if (tag.contains("Recyclage : Textille"))
+            return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE);
+        return null;
+    }
+
+    @Override
+    public void onViewCreated(final View view, Bundle savedInstanceState) {
         final Spinner spinner = (Spinner) view.findViewById(R.id.spinnerFiltre);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -100,27 +151,24 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
                         mMap.addPolygon(p);
                     }
                 }
+                Button b = (Button) view.findViewById(R.id.buttonDetails);
+                b.setVisibility(View.VISIBLE);
+                b.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Fragment fragment = new PointFragment();
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        FragmentTransaction transaction = fragmentManager.beginTransaction();
+                        transaction.replace(R.id.content_frame, fragment);
+                        transaction.commit();
+                    }
+                });
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-                // your code here
             }
         });
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    setUpMap(googleMap);
-                }
-            });
-        }
     }
 
     public void addAllMarker() {
@@ -130,6 +178,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         for (PolygonOptions p : listPoints.getListPolyPoints()) {
             mMap.addPolygon(p);
         }
+
     }
 
     private void setUpMap(GoogleMap googleMap) {
@@ -139,13 +188,17 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
         LatLng latLng = new LatLng(latitude, longitude);
         addAllMarker();
         if (newMarker != null) {
-//            mMap.addMarker(newMarker);
             latLng = newMarker.getPosition();
         } else if (newZone != null) {
-           // mMap.addCircle(newZone);
             latLng = newZone.getCenter();
         }
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
+        if (!stayedPoint.isEmpty()) {
+            for (MarkerOptions mark : stayedPoint) {
+                mMap.addMarker(mark);
+            }
+            stayedPoint.clear();
+        }
         enableMyLocation();
     }
 
@@ -161,6 +214,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        interestPointService.removeListener(this);
         mMap = null;
     }
 
@@ -178,7 +232,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
     @Override
     public void onPointsCreated(List<InterestPoint> interestPoints) {
         for (InterestPoint point : interestPoints) {
-            System.out.println(point);
             String tags = "";
             for (String tag : point.getTags()) {
                 tags += tag + " ";
@@ -186,14 +239,18 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMyLocationButt
             MarkerOptions newMarker = new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))
                     .title(tags)
                     .snippet("Ajouté par : " + point.getUsername());
-            mMap.addMarker(newMarker);
+            if (mMap == null) {
+                stayedPoint.add(newMarker);
+            } else {
+                mMap.addMarker(newMarker);
+            }
+            Log.e("mmap", "mmpa null");
+
         }
     }
 
     @Override
     public void onReadPointError() {
-        // alert user or not...
     }
-
 
 }

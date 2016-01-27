@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Romain on 21/01/2016.
- */
 public class InterestPointDaoFirebase implements IInterestPointDao, ValueEventListener, ChildEventListener {
 
     private final Firebase database;
@@ -74,17 +71,14 @@ public class InterestPointDaoFirebase implements IInterestPointDao, ValueEventLi
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String previousChildKey) {
-        // not yet implemented
     }
 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
-        // not yet implemented
     }
 
     @Override
     public void onChildMoved(DataSnapshot dataSnapshot, String previousChildKey) {
-        // not yet implemented
     }
 
     @Override

@@ -8,25 +8,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.m2dl.miniprojetpointinteret.Preferences;
 import com.m2dl.miniprojetpointinteret.R;
 
-/**
- * Created by lgaleron on 16/01/2016.
- */
 public class SettingsFragment extends Fragment implements View.OnClickListener {
 
     private View view;
-    Preferences pref;
-    EditText login;
-    FragmentActivity activity;
+    private Preferences pref;
+    private EditText login;
+    private FragmentActivity activity;
 
     public SettingsFragment() {
         super();
-        // Just to be an empty Bundle. You can use this later with getArguments().set...
         setArguments(new Bundle());
     }
 
@@ -61,7 +56,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 else {
                     pref.setLogin(newLogin);
                     Toast.makeText(activity, "Modification effectuée", Toast.LENGTH_SHORT).show();
-                    // TODO Modifier dans la table
                 }
                 break;
         }

@@ -2,9 +2,6 @@ package com.m2dl.miniprojetpointinteret.model;
 
 import java.util.List;
 
-/**
- * Created by Romain on 15/01/2016.
- */
 public class InterestPoint {
 
     private String id;

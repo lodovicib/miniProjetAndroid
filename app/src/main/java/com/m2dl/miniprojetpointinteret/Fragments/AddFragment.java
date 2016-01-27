@@ -3,14 +3,12 @@ package com.m2dl.miniprojetpointinteret.Fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,34 +30,42 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.m2dl.miniprojetpointinteret.Preferences;
 import com.m2dl.miniprojetpointinteret.R;
 import com.m2dl.miniprojetpointinteret.model.InterestPointService;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by lgaleron on 11/01/2016.
- */
-public class AddFragment extends Fragment implements View.OnClickListener, LocationListener, CompoundButton.OnCheckedChangeListener {
+public class AddFragment extends Fragment implements View.OnClickListener,
+        CompoundButton.OnCheckedChangeListener, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private View view;
     private Spinner spinner;
     private Location location;
     private LocationManager locationManager;
     private Criteria critere;
+    private GoogleApiClient mGoogleApiClient = null;
+    private Location mLastLocation;
+    private Bitmap bitmap;
+    private static Double latitudeUPS = 43.560573;
+    private static Double longitudeUPS = 1.468520;
 
     private Uri imageUri;
     private ImageView imageView;
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
-    TextView textViewType;
-    Spinner spinnerTag;
-    CheckBox cRecy, cDeg, cFuite;
+    private TextView textViewType;
+    private Spinner spinnerTag;
+    private CheckBox cRecy, cDeg, cFuite;
     private Double latitude, longitude;
-    RadioButton rPoint;
-    RadioButton rZone;
+    private RadioButton rPoint;
+    private RadioButton rZone;
     private Preferences pref;
     private InterestPointService interestPointService;
 
@@ -96,15 +102,51 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
         spinnerTag = (Spinner) view.findViewById(R.id.spinnerTag);
         spinnerTag.setVisibility(View.INVISIBLE);
 
-        initLocation();
         pref = new Preferences(this.getActivity());
+
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this.getActivity())
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+
         return view;
+    }
+
+    public void onConnected(Bundle connectionHint) {
+        if (ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this.getActivity(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            latitude = mLastLocation.getLatitude();
+            longitude = mLastLocation.getLongitude();
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    public void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    public void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
     public void recupLocation() {
         try {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
+            latitude = mLastLocation.getLatitude();
+            longitude = mLastLocation.getLongitude();
         } catch (Exception e) {
             Toast.makeText(AddFragment.this.getActivity(), "Impossible de vous géolocaliser\nVeuillez activer votre position pour ajouter un point d\'intérêt", Toast.LENGTH_SHORT)
                     .show();
@@ -112,32 +154,14 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
         }
     }
 
-    public void initLocation() {
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        critere = new Criteria();
-        critere.setAccuracy(Criteria.ACCURACY_FINE);
-        if (ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            String locationProvider = LocationManager.NETWORK_PROVIDER;
-            // Or use LocationManager.GPS_PROVIDER
-            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-        }
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            abonnementGPS();
-        }
-    }
-
     public void takePhoto(View view) {
-        //Création d'un intent
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
 
-        //Création du fichier image
-        File photo = new File(Environment.getExternalStorageDirectory(),  "Pic.jpg");
+        File photo = new File(Environment.getExternalStorageDirectory(), "Pic.jpg");
         intent.putExtra(MediaStore.EXTRA_OUTPUT,
                 Uri.fromFile(photo));
         imageUri = Uri.fromFile(photo);
 
-        //On lance l'intent
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
 
@@ -145,14 +169,12 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            //Si l'activité était une prise de photo
             case CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
                     Uri selectedImage = imageUri;
                     AddFragment.this.getActivity().getContentResolver().notifyChange(selectedImage, null);
                     imageView = (ImageView) view.findViewById(R.id.imageView2);
                     ContentResolver cr = AddFragment.this.getActivity().getContentResolver();
-                    Bitmap bitmap;
                     try {
                         Matrix matrix = new Matrix();
                         matrix.postRotate(90);
@@ -168,6 +190,12 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
                     }
                 }
         }
+    }
+
+    public byte[] getByteFromBitmap(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        return stream.toByteArray();
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -200,7 +228,6 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
                 String errorText = "";
                 cDeg = (CheckBox) view.findViewById(R.id.checkBoxDeg);
                 cFuite = (CheckBox) view.findViewById(R.id.checkBoxFuite);
-
                 if (!cDeg.isChecked() && !cFuite.isChecked() && !cRecy.isChecked())
                     errorText += "- Sélectionner au moins 1 tag\n";
                 if (imageView == null)
@@ -210,14 +237,21 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
                             .show();
                     recupLocation();
                 } else if (!errorText.equals(""))
-                    Toast.makeText(AddFragment.this.getActivity(), "Veuillez remplir les champs suivants :\n"+errorText, Toast.LENGTH_SHORT)
+                    Toast.makeText(AddFragment.this.getActivity(), "Veuillez remplir les champs suivants :\n" + errorText, Toast.LENGTH_SHORT)
                             .show();
                 else {
                     addPoint();
                 }
-                // TODO n'ajouter que si on est à la fac !
                 break;
         }
+    }
+
+    public boolean tooFarawayUPS() {
+        float[] results = {0};
+        Location.distanceBetween(latitude, longitude, latitudeUPS, longitudeUPS, results);
+        if (results[0] < 1750)
+            return false;
+        return true;
     }
 
     public List<String> getTitleTag() {
@@ -228,29 +262,40 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
             list.add(cFuite.getText().toString());
         if (cRecy.isChecked()) {
             if (spinner != null && spinner.getSelectedItemPosition() != 0)
-                list.add(cRecy.getText().toString()+" : "+ spinner.getSelectedItem().toString());
+                list.add(cRecy.getText().toString() + " : " + spinner.getSelectedItem().toString());
             else
                 list.add(cRecy.getText().toString());
         }
         return list;
     }
 
+    public String getStringTag() {
+        String text = "";
+        if (cDeg.isChecked())
+            text += cDeg.getText() + "\n";
+        if (cFuite.isChecked())
+            text += cFuite.getText() + "\n";
+        if (cRecy.isChecked()) {
+            text += cRecy.getText();
+            if (spinner != null && spinner.getSelectedItemPosition() != 0)
+                text += " : " + spinner.getSelectedItem().toString();
+        }
+        return text;
+    }
+
     public void addPoint() {
-        // TODO use interestPoint service to store the new point (createPoint())
-        // MapsFragment will know the change with firebase ValueChangeEvent
         Fragment fragmentMap = new MapsFragment();
-        interestPointService.createPoint(longitude, latitude, 0, null, pref.getLogin(), getTitleTag());
+        interestPointService.createPoint(longitude, latitude, 0, getByteFromBitmap(bitmap), pref.getLogin(), getTitleTag());
         Bundle bundle = new Bundle();
         bundle.putDouble("latitude", latitude);
         bundle.putDouble("longitude", longitude);
-       // bundle.putString("tag", getTitleTag());
+        bundle.putString("tag", getStringTag());
         if (rZone.isChecked()) {
             Spinner s = (Spinner) view.findViewById(R.id.spinnerDiam);
             bundle.putInt("sizeZone", Integer.parseInt(s.getSelectedItem().toString()));
         }
         fragmentMap.setArguments(bundle);
-
-        android.support.v4.app.FragmentManager fragmentManager =  AddFragment.this.getActivity().getSupportFragmentManager();
+        android.support.v4.app.FragmentManager fragmentManager = AddFragment.this.getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
         transaction.replace(R.id.content_frame, fragmentMap);
@@ -261,52 +306,16 @@ public class AddFragment extends Fragment implements View.OnClickListener, Locat
     @Override
     public void onPause() {
         super.onPause();
-        desabonnementGPS();
         Log.i("onPause", "onPauseMap");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            abonnementGPS();
-        }
         Log.i("onResume", "onResumeMap");
     }
 
-    public void abonnementGPS() {
-        if (ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, this);
-    }
-
-    public void desabonnementGPS() {
-        if (ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(AddFragment.this.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        locationManager.removeUpdates(this);
-    }
-
     @Override
-    public void onLocationChanged(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
+    public void onConnectionFailed(ConnectionResult connectionResult) {
     }
 }

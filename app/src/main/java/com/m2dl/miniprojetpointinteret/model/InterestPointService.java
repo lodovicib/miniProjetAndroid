@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by Romain on 15/01/2016.
- */
 public class InterestPointService implements InterestPointListener {
 
     private IInterestPointDao interestPointDao;

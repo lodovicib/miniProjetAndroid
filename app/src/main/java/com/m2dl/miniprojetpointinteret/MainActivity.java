@@ -24,20 +24,21 @@ import com.m2dl.miniprojetpointinteret.Fragments.SettingsFragment;
 import com.m2dl.miniprojetpointinteret.model.IInterestPointDao;
 import com.m2dl.miniprojetpointinteret.model.IUserDao;
 import com.m2dl.miniprojetpointinteret.model.InterestPointDaoFirebase;
-import com.m2dl.miniprojetpointinteret.model.UserDaoFirebase;
 import com.m2dl.miniprojetpointinteret.model.InterestPointService;
+import com.m2dl.miniprojetpointinteret.model.UserDaoFirebase;
 import com.m2dl.miniprojetpointinteret.model.UserService;
 import com.m2dl.miniprojetpointinteret.utils.IdGenerator;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    Fragment fragment = new MapsFragment();
-    FragmentTransaction transaction;
+    private Fragment fragment = new MapsFragment();
+    private FragmentTransaction transaction;
     private android.support.v4.app.FragmentManager fragmentManager;
-    Preferences pref;
-    FloatingActionButton fab;
+    private Preferences pref;
+    private FloatingActionButton fab;
     private String login;
+    private NavigationView navigationView;
 
     private Firebase database;
     private IInterestPointDao interestPointDao;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -149,12 +150,19 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        }
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
         } else {
-            super.onBackPressed();
+            if (navigationView.getHeaderCount() == 1)
+                System.exit(RESULT_OK);
+            else {
+                createMapsFragment();
+                fab.setVisibility(View.VISIBLE);
+                switchFragment();
+            }
         }
     }
-
-    /* Menu sur le coté*/
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {

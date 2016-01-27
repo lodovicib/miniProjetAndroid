@@ -1,8 +1,5 @@
 package com.m2dl.miniprojetpointinteret.model;
 
-/**
- * Created by Romain on 15/01/2016.
- */
 public class User {
 
     private String id;

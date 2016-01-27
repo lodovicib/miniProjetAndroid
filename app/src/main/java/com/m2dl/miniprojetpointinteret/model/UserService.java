@@ -2,9 +2,6 @@ package com.m2dl.miniprojetpointinteret.model;
 
 import com.m2dl.miniprojetpointinteret.utils.IdGenerator;
 
-/**
- * Created by Romain on 15/01/2016.
- */
 public class UserService {
 
     private IUserDao userDao;

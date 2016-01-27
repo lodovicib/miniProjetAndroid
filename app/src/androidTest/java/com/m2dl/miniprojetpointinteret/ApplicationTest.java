@@ -18,7 +18,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     @Override
     protected void runTest() throws Throwable {
         super.runTest();
-        IUserDao repos = new UserDaoFirebase();
+        //IUserDao repos = new UserDaoFirebase();
         //UserService service = new UserService(repos);
 
         //service.createUser("test");

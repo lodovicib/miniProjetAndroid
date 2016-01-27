@@ -11,9 +11,6 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by lgaleron on 21/01/2016.
- */
 public class BasicListPoints {
 
     private List<MarkerOptions> listPoints;
@@ -138,7 +135,6 @@ public class BasicListPoints {
     }
 
     private void initPoints() {
-       // Verre
         ArrayList<LatLng> listVerre = new ArrayList<>(7);
         listVerre.add(new LatLng(43.55891,1.47303));listVerre.add(new LatLng(43.55999,1.47194));
         listVerre.add(new LatLng(43.55995,1.47195));listVerre.add(new LatLng(43.56439,1.47053));
@@ -150,7 +146,6 @@ public class BasicListPoints {
 
         addListPoints(listVerre, "Recyclage : verre", BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
-        //Textile
         ArrayList<LatLng> listTextille = new ArrayList<>(2);
         listTextille.add(new LatLng(43.55505, 1.46811));
         listTextille.add(new LatLng(43.56305, 1.45935));

@@ -2,9 +2,6 @@ package com.m2dl.miniprojetpointinteret.model;
 
 import com.firebase.client.Firebase;
 
-/**
- * Created by Romain on 19/01/2016.
- */
 public class UserDaoFirebase implements IUserDao {
 
     private final Firebase database;
