@@ -70,7 +70,6 @@ public class InterestPointDaoFirebase implements IInterestPointDao, ValueEventLi
         InterestPoint newPoint = dataSnapshot.getValue(InterestPoint.class);
         if (newPoint != null)
             fireValueAdded(Arrays.asList(newPoint));
-        Log.e("ChildAdded", newPoint.getId());
     }
 
     @Override
@@ -98,8 +97,6 @@ public class InterestPointDaoFirebase implements IInterestPointDao, ValueEventLi
         }
         if (!interestPoints.isEmpty())
             fireValueAdded(interestPoints);
-        for (InterestPoint point : interestPoints)
-            Log.e("DataChanged", point.getId());
         nbPointStart = interestPoints.size();
         this.database.addChildEventListener(this);
     }
